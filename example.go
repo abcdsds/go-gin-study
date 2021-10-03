@@ -5,7 +5,13 @@ import (
 )
 
 func main() {
-	r := setupRouter()
+	r := gin.Default()
+	c := &Config{
+		R:         r,
+		PingModel: &PingPong{"ping", "pong"},
+	}
+
+	setupRouter(r, c)
 	// r.GET("/ping", func(c *gin.Context) {
 	// 	c.JSON(200, gin.H{
 	// 		"message": "pong",
@@ -14,8 +20,8 @@ func main() {
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
-func setupRouter() *gin.Engine {
-	r := gin.Default()
-	pingRouter(r)
-	return r
+func setupRouter(r *gin.Engine, c *Config) {
+	h := NewHandler(c)
+	rgroup := r.Group("/game")
+	h.pingRouter(rgroup)
 }

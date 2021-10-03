@@ -2,26 +2,47 @@ package main
 
 import "github.com/gin-gonic/gin"
 
-func pingRouter(router *gin.Engine) {
-	pingpong := PingModel{}
-	game := router.Group("/game")
-	{
-		game.GET("/ping", func(c *gin.Context) {
-			c.JSON(200, gin.H{
-				"message": pingpong.pong,
-			})
-		})
+type Handler struct {
+	PingModel PingModel
+}
 
-		game.GET("/pong", func(c *gin.Context) {
-			c.JSON(200, gin.H{
-				"message": pingpong.ping,
-			})
-		})
+type Config struct {
+	R         *gin.Engine
+	PingModel PingModel
+}
 
-		game.GET("/pin", func(c *gin.Context) {
-			c.JSON(400, gin.H{
-				"message": "you can only ping, pong",
-			})
+func NewHandler(c *Config) *Handler {
+	return &Handler{
+		PingModel: c.PingModel,
+	}
+}
+
+func (h *Handler) pingRouter(g *gin.RouterGroup) {
+	g.GET("/ping", h.ping())
+	g.GET("/pong", h.pong())
+	g.GET("/pin", h.pingPongError())
+}
+
+func (h *Handler) ping() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": h.PingModel.getPong(),
+		})
+	}
+}
+
+func (h *Handler) pong() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": h.PingModel.getPing(),
+		})
+	}
+}
+
+func (h *Handler) pingPongError() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(400, gin.H{
+			"message": "bad request",
 		})
 	}
 }
