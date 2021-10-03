@@ -5,12 +5,17 @@ import (
 )
 
 func main() {
-	r := gin.Default()
+	r := setupRouter()
 	// r.GET("/ping", func(c *gin.Context) {
 	// 	c.JSON(200, gin.H{
 	// 		"message": "pong",
 	// 	})
 	// })
-	pingRouter(r)
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+}
+
+func setupRouter() *gin.Engine {
+	r := gin.Default()
+	pingRouter(r)
+	return r
 }
